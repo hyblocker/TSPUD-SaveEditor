@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -153,6 +154,14 @@ namespace StanleySaveEditor
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Check if the game is running
+            var gameInstances = Process.GetProcessesByName("The Stanley Parable Ultra Deluxe.exe");
+            if (gameInstances.Length > 0)
+            {
+                MessageBox.Show("Stanley, you do realize that the game is open, right? Close it!", "Bruh close the game");
+                return;
+            }
+
             try
             {
                 currentSave.Save();

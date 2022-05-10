@@ -9,22 +9,30 @@ namespace StanleySaveEditor
 
     public class StanleyParableSaveCacheEntry
     {
-        [CategoryAttribute("Key")]
+        [Category("Key")]
         public string key { get; set; }
-        [CategoryAttribute("Key")]
-        public int configureableType { get; set; }
-        [CategoryAttribute("Data")]
+        [Category("Key")]
+        public ConfigurableTypeEnum configureableType { get; set; }
+        [Category("Data")]
         public int IntValue { get; set; }
-        [CategoryAttribute("Data")]
+        [Category("Data")]
         public float FloatValue { get; set; }
-        [CategoryAttribute("Data")]
+        [Category("Data")]
         public bool BooleanValue { get; set; }
-        [CategoryAttribute("Data")]
+        [Category("Data")]
         public string StringValue { get; set; }
 
-        public string ToString()
+        public override string ToString()
         {
             return $"{{{key}}}";
         }
+    }
+
+    public enum ConfigurableTypeEnum
+    {
+        Integer = 0,
+        Float = 1,
+        Bool = 2,
+        String = 3,
     }
 }

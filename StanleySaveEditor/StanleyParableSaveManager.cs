@@ -7,7 +7,7 @@ namespace StanleySaveEditor
 {
     public class StanleyParableSaveContainer
     {
-        internal FBPPFileModel saveDataMisc;
+        public FBPPFileModel saveDataMisc;
         public StanleyParableSave saveData;
 
         public void Save()
@@ -32,8 +32,6 @@ namespace StanleySaveEditor
             var saveFileText = File.ReadAllText(SaveFile);
             saveFileText = Unscramble(saveFileText);
             File.WriteAllText(SaveFileJson, saveFileText);
-
-            Console.WriteLine(saveFileText);
 
             var saveRoot = JsonConvert.DeserializeObject<FBPPFileModel>(saveFileText);
             var saveData = JsonConvert.DeserializeObject<StanleyParableSave>((string)saveRoot.GetValueForKey("data", "{\n    \"saveDataCache\": []\n}"));

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 
-
 [Serializable]
 public class FBPPFileModel
 {

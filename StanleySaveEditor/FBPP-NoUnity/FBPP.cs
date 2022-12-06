@@ -5,7 +5,6 @@ using UnityEngine;
 
 public static class FBPP
 {
-
     private class FBPPInitException : Exception
     {
         public FBPPInitException(string message) : base(message)
@@ -14,12 +13,12 @@ public static class FBPP
 
     private const string INIT_EXCEPTION_MESSAGE = "Error, you must call FBPP.Start(FBPPConfig config) before trying to get or set saved data.";
 
-    private static FBPPConfig _config;
+    private static FBPPConfig s_config;
 
     public static bool ShowInitWarning = true;
 
-    private static FBPPFileModel _latestData;
-    private static StringBuilder _sb = new StringBuilder();
+    private static FBPPFileModel s_latestData;
+    private static StringBuilder s_sb = new StringBuilder();
 
     const string String_Empty = "";
 
@@ -27,20 +26,19 @@ public static class FBPP
 
     public static void Start(FBPPConfig config)
     {
-        _config = config;
-        _latestData = GetSaveFile();
+        s_config = config;
+        s_latestData = GetSaveFile();
     }
 
     private static void CheckForInit()
     {
-        if (_config == null)
+        if (s_config == null)
         {
             throw new FBPPInitException(INIT_EXCEPTION_MESSAGE);
         }
     }
 
     #endregion
-
 
     #region Public Get, Set and util
 
@@ -142,20 +140,18 @@ public static class FBPP
     public static void DeleteAll()
     {
         WriteToSaveFile(JsonUtility.ToJson(new FBPPFileModel()));
-        _latestData = new FBPPFileModel();
+        s_latestData = new FBPPFileModel();
     }
 
     public static void OverwriteLocalSaveFile(string data)
     {
         WriteToSaveFile(data);
-        _latestData = null;
-        _latestData = GetSaveFile();
+        s_latestData = null;
+        s_latestData = GetSaveFile();
     }
 
 
     #endregion
-
-
 
     #region Read data
 
@@ -163,23 +159,23 @@ public static class FBPP
     {
         CheckForInit();
         CheckSaveFileExists();
-        if (_latestData == null)
+        if (s_latestData == null)
         {
             var saveFileText = File.ReadAllText(GetSaveFilePath());
-            if (_config.ScrambleSaveData)
+            if (s_config.ScrambleSaveData)
             {
                 saveFileText = DataScrambler(saveFileText);
             }
             try
             {
-                _latestData = JsonUtility.FromJson<FBPPFileModel>(saveFileText);
+                s_latestData = JsonUtility.FromJson<FBPPFileModel>(saveFileText);
             }
             catch (ArgumentException e)
             {
                 Console.Error.WriteLine(new Exception("FBPP Error loading save file: " + e.Message).StackTrace);
-                if (_config.OnLoadError != null)
+                if (s_config.OnLoadError != null)
                 {
-                    _config.OnLoadError.Invoke();
+                    s_config.OnLoadError.Invoke();
                 }
                 else
                 {
@@ -187,13 +183,13 @@ public static class FBPP
                 }
             }
         }
-        return _latestData;
+        return s_latestData;
     }
 
     public static string GetSaveFilePath()
     {
         CheckForInit();
-        return Path.Combine(_config.GetSaveFilePath(), _config.SaveFileName);
+        return Path.Combine(s_config.GetSaveFilePath(), s_config.SaveFileName);
     }
 
 
@@ -212,8 +208,7 @@ public static class FBPP
 
     #endregion
 
-
-    #region write data
+    #region Write data
 
     private static void AddDataToSaveFile(string key, object value)
     {
@@ -230,7 +225,7 @@ public static class FBPP
 
     private static void SaveSaveFile(bool manualSave = false)
     {
-        if (_config.AutoSaveData || manualSave)
+        if (s_config.AutoSaveData || manualSave)
         {
             WriteToSaveFile(JsonUtility.ToJson(GetSaveFile()));
         }
@@ -238,7 +233,7 @@ public static class FBPP
     private static void WriteToSaveFile(string data)
     {
         var tw = new StreamWriter(GetSaveFilePath());
-        if (_config.ScrambleSaveData)
+        if (s_config.ScrambleSaveData)
         {
             data = DataScrambler(data);
         }
@@ -247,7 +242,6 @@ public static class FBPP
     }
 
     #endregion
-
 
     #region File Utils
 
@@ -271,13 +265,13 @@ public static class FBPP
 
     internal static string DataScrambler(string data)
     {
-        _sb.Clear();
+        s_sb.Clear();
 
         for (int i = 0; i < data.Length; i++)
         {
-            _sb.Append((char)(data[i] ^ _config.EncryptionSecret[i % _config.EncryptionSecret.Length]));
+            s_sb.Append((char)(data[i] ^ s_config.EncryptionSecret[i % s_config.EncryptionSecret.Length]));
         }
-        return _sb.ToString();
+        return s_sb.ToString();
     }
 
     #endregion
